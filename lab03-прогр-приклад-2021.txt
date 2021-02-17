@@ -1,0 +1,139 @@
+•	заголовковий файл «Employee.h»
+
+#ifndef EMPLOYEE_H 
+#define EMPLOYEE_H 
+ 
+#include <cstring>
+#include <string>
+#include <iostream>
+
+class Employee // клас Робітник
+{
+ private:    // приватні дані та методи класу
+    char name[25];
+    int age;
+    char position[25];
+    float salary;
+    int stage;
+    static const int maxlen = 255;
+    int date[maxlen][3];
+    std::string jobList[maxlen];
+    int job_index = 0;
+    void showDate(int index);
+    void calculateStage(int currentYear, int currentMonth, int currentDay);
+
+    public: // публічні методи класу
+        void setName(char *n);
+        void getName(char *n);
+        void setAge(int s);
+        int getAge();
+        void setPosition(char *p, int year, int month, int day);
+        void getPosition(char *p);
+        void setSalary(float s);
+        float getSalary();
+        void showCareer();
+        int getStage(int currentYear, int currentMonth, int currentDay);
+};
+
+#endif 
+
+
+•	файл з реалізацією класу «Employee.cpp»
+
+#include "Employee.h"
+
+void Employee::setName(char* n)
+{
+    strcpy(name, n);
+}
+void Employee::getName(char* n)
+{
+    strcpy(n, name);
+}
+void Employee::setAge(int s)
+{
+    age = s;
+}
+int Employee::getAge()
+{
+    return age;
+}
+void Employee::setPosition(char* p, int year, int month, int day)
+{
+    strcpy(position, p);
+    date[job_index][0] = year;
+    date[job_index][1] = month;
+    date[job_index][2] = day;
+    jobList[job_index] = position;
+    calculateStage(year, month, day);
+    job_index++;
+}
+void Employee::getPosition(char* p)
+{
+    strcpy(p, position);
+}
+float Employee::getSalary()
+{
+    return salary;
+}
+void Employee::setSalary(float s)
+{
+    salary = s;
+}
+void Employee::showCareer()
+{
+    for(int i=0; i<job_index; i++)
+    {
+        std::cout << "Job " << i+1 << ": " << jobList[i] << ", started from: ";
+        showDate(i);
+    }
+}
+void Employee::showDate(int index)
+{
+    std::cout << date[index][0] << '.' << date[index][1] << '.' << date[index][2] << std::endl;
+}
+void Employee::calculateStage(int currentYear, int currentMonth, int currentDay)
+{
+    if(job_index == 0)
+        stage = 0;
+    else
+    {
+        int daysDelta = currentDay - date[0][2];
+        if(daysDelta < 0)
+            currentMonth -= 1;
+        int monthsDelta = currentMonth - date[0][1];
+        if(monthsDelta < 0)
+            currentYear -= 1;
+        stage = currentYear - date[0][0];
+    }
+}
+int Employee::getStage(int currentYear, int currentMonth, int currentDay)
+{
+    if((currentYear != date[job_index][0]) || (currentMonth != date[job_index][1]) || (currentDay != date[job_index][2]))
+        calculateStage(currentYear, currentMonth, currentDay);
+    return stage;
+}
+
+•	та файл «main.cpp» з прикладом створення і використання класу
+
+#include <iostream>
+#include "Employee.h"
+
+using namespace std;
+
+int main()
+{
+    Employee ivan;
+    char name[25] = {"Ivan Ivanov"};
+    ivan.setName(name);
+    ivan.setSalary(10000);
+    ivan.setPosition((char *)"Manager", 2004, 3, 1);
+    char new_name[25];
+    ivan.getName(new_name);
+    cout << new_name << endl;
+    cout << ivan.getSalary() << endl;
+    ivan.setPosition((char *)"Director", 2010, 8, 21);
+    ivan.showCareer();
+    cout << ivan.getStage(2020, 2, 18) << endl;
+    return 0;
+}
